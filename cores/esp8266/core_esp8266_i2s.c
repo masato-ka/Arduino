@@ -99,67 +99,9 @@ uint32_t ICACHE_FLASH_ATTR i2s_slc_queue_next_item(){ //pop the top off the queu
   return item;
 }
 
-/*uint32_t ICACHE_FLASH_ATTR result_queue_next_item(){
-  uint8_t i;
-  uint32_t item = result_queue[0];
-  result_queue_len--;
-  for(i=0; i < result_queue_len; i++){
-    result_queue[i]=result_queue[i+1];
-  }
-  //TODO Where did result_queue  go.
-  //  result_queue[SLC_BUF_CNT-2] = item;
-  return item;
-  }*/
-
 bool ICACHE_FLASH_ATTR i2s_read_async(uint32_t* buffer){
-  //if(i2s_slc_queue_len==0){
-  /*  if(result_queue_len == 0){
-    while(1){
-      //      if(i2s_slc_queue_len < 0 ){
-      if(result_queue_len > 0){
-	break;
-      }else{
-	  ets_wdt_disable();
-          ets_wdt_enable();
-      }
-    }
-    }*/
-  /*
-  if(!f_result){
-    while(1){
-      if(f_result){
-	break;
-      }else{
-	ets_wdt_disable();
-	ets_wdt_enable();
-      }
-    }
-    }*/
   bool result = dequeue_result(buffer);
   return result;
-  //this point
-  /*  if(!dequeue_result(buffer)){
-    while(1){
-      if(dequeue_result(buffer)){
-	break;
-      }else{
-	ets_wdt_disable();
-	ets_wdt_enable();
-	wdt_feed();
-	//ESP.wdtFeed();
-      }
-      delay(10);
-    }
-    }*/
- 
-  //  int i;
-  //buffer[0] = 123;//i2s_rece_data_queue_len;//(uint32_t *)i2s_rece_data_queue_next_item();
-  //  ETS_SLC_INTR_DISABLE();
-  //uint32_t result = (uint32_t *) result_queue_next_item();
-  //  memcpy(buffer, result, SLC_BUF_LEN*4);
-  //  ETS_SLC_INTR_ENABLE();
-  //  memset(result, 0x00, SLC_BUF_LEN*4); 
-  //  f_result=false;
 }
 
 //This routine is called as soon as the DMA routine has something to tell us. All we
@@ -169,32 +111,10 @@ void ICACHE_FLASH_ATTR i2s_slc_isr(void) {
   uint32_t slc_intr_status = SLCIS;
   SLCIC = 0xFFFFFFFF;
   
-  /*if (slc_intr_status & SLCIRXEOF) {
-    ETS_SLC_INTR_DISABLE();
-    struct slc_queue_item *finished_item = (struct slc_queue_item*)SLCRXEDA;
-    memset((void *)finished_item->buf_ptr, 0x00, SLC_BUF_LEN * 4);//zero the buffer so it is mute in case of underflow
-    if (i2s_slc_queue_len >= SLC_BUF_CNT-1) { //All buffers are empty. This means we have an underflow
-      i2s_slc_queue_next_item(); //free space for finished_item
-    }
-    i2s_slc_queue[i2s_slc_queue_len++] = finished_item->buf_ptr;
-    ETS_SLC_INTR_ENABLE();
-    }*/
   if(slc_intr_status & SLCITXEOF){
     ETS_SLC_INTR_DISABLE();
     struct slc_queue_item *finished_item =(struct slc_queue_item*)SLCTXEDA;
-    //int index;
-    /*if(i2s_slc_queue_len >= SLC_BUF_CNT-1){
-      i2s_slc_queue_next_item();
-      }*/
-    /*if(result_queue_len >= SLC_BUF_CNT-1){// underflow for result_queue
-      result_queue_next_item();
-      }*/
     enqueue_result(finished_item->buf_ptr);
-    //result_queue[result_queue_len++] = (uint32_t *)finished_item->buf_ptr;
-    //result = finished_item->datalen;
-    //memcpy(result_queue[result_queue_len++], finished_item->buf_ptr, SLC_BUF_LEN*4);
-    //memcpy(result,finished_item->buf_ptr, SLC_BUF_LEN*4);
-    //i2s_rece_data_queue_len++;
     uint8_t x;
     //reinitialize
     for(x=0; x<SLC_BUF_CNT;x++){
@@ -202,14 +122,11 @@ void ICACHE_FLASH_ATTR i2s_slc_isr(void) {
          finished_item->next_link_ptr = (int)((x<(SLC_BUF_CNT-1))?(&i2s_slc_items[x+1]):(&i2s_slc_items[0]));
       }
     }
-    //    memset((void *)finished_item->buf_ptr, 0x00, SLC_BUF_LEN * 4);//zero the buffer so it is mute in case of underflow
+
     finished_item->eof=0;
-    //finished_item->sub_sof = 0;
-    //finished_item->blocksize = SLC_BUF_LEN*4;
     finished_item->datalen=0;
     finished_item->owner=1;
     f_result=true;
-    //flag++;
     ETS_SLC_INTR_ENABLE();
   }
 }
@@ -383,4 +300,7 @@ void ICACHE_FLASH_ATTR i2s_end(){
   pinMode(2, INPUT);
   pinMode(3, INPUT);
   pinMode(15, INPUT);
+  pinMode(14, FUNCTION_1);
+  pinMode(12, FUNCTION_1);
+  pinMode(13, FUNCTION_1);
 }
