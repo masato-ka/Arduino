@@ -169,8 +169,6 @@ extern uint8_t esp8266_gpioToFn[16];
 #define RTCIC     ESP8266_REG(0x724) //RTC INT Clear
 #define RTCIE     ESP8266_REG(0x728) //RTC INT Enable
 
-#define RTC_USER_MEM ((volatile uint32_t*)0x60001200)
-
 //IO SWAP Register
 #define IOSWAP    ESP8266_DREG(0x28)
 #define IOSWAPU   0 //Swaps UART
@@ -692,7 +690,7 @@ extern uint8_t esp8266_gpioToFn[16];
 #define SLCRXLRS  (1 << 30) //SLC_RXLINK_RESTART
 #define SLCRXLS   (1 << 29) //SLC_RXLINK_START
 #define SLCRXLE   (1 << 28) //SLC_RXLINK_STOP
-#define SLCRXLAM  (0xFFFF)  //SLC_RXLINK_DESCADDR_MASK
+#define SLCRXLAM  (0xFFFFF)  //SLC_RXLINK_DESCADDR_MASK
 #define SLCRXLA   (0)       //SLC_RXLINK_ADDR_S
 
 //SLC (DMA) TX_LINK
@@ -700,7 +698,7 @@ extern uint8_t esp8266_gpioToFn[16];
 #define SLCTXLRS  (1 << 30) //SLC_TXLINK_RESTART
 #define SLCTXLS   (1 << 29) //SLC_TXLINK_START
 #define SLCTXLE   (1 << 28) //SLC_TXLINK_STOP
-#define SLCTXLAM  (0xFFFF)  //SLC_TXLINK_DESCADDR_MASK
+#define SLCTXLAM  (0xFFFFF)  //SLC_TXLINK_DESCADDR_MASK
 #define SLCTXLA   (0)       //SLC_TXLINK_ADDR_S
 
 //SLC (DMA) TOKENx
@@ -750,7 +748,7 @@ extern uint8_t esp8266_gpioToFn[16];
 #define i2c_bbpll_en_audio_clock_out_msb  7
 #define i2c_bbpll_en_audio_clock_out_lsb  7
 #define I2S_CLK_ENABLE()                  i2c_writeReg_Mask_def(i2c_bbpll, i2c_bbpll_en_audio_clock_out, 1)
-#define I2SBASEFREQ                       (12000000L)
+#define I2SBASEFREQ                       (6000000L)//12->6
 
 #define I2STXF  ESP8266_REG(0xe00) //I2STXFIFO (32bit)
 #define I2SRXF  ESP8266_REG(0xe04) //I2SRXFIFO (32bit)
@@ -766,9 +764,9 @@ extern uint8_t esp8266_gpioToFn[16];
 #define I2SCC   ESP8266_REG(0xe2C) //I2SCONF_CHAN
 
 // I2S CONF
-#define I2SBDM  (0x3F)    //I2S_BCK_DIV_NUM
+#define I2SBDM  (0x3F)    //I2S_BCK_DIV_NUM  3F
 #define I2SBD   (22)      //I2S_BCK_DIV_NUM_S
-#define I2SCDM  (0x3F)    //I2S_CLKM_DIV_NUM
+#define I2SCDM  (0x3F)    //I2S_CLKM_DIV_NUM 3F
 #define I2SCD   (16)      //I2S_CLKM_DIV_NUM_S
 #define I2SBMM  (0xF)     //I2S_BITS_MOD
 #define I2SBM   (12)      //I2S_BITS_MOD_S
@@ -820,9 +818,9 @@ extern uint8_t esp8266_gpioToFn[16];
 #define I2STBID  (0)        //I2S_TRANS_BCK_IN_DELAY_S
 
 //I2S FIFO CONF
-#define I2SRXFMM (0x7)      //I2S_I2S_RX_FIFO_MOD
+#define I2SRXFMM (0x2)      //I2S_I2S_RX_FIFO_MOD //modify 7-> mod 2 24bit half discon
 #define I2SRXFM  (16)       //I2S_I2S_RX_FIFO_MOD_S
-#define I2STXFMM (0x7)      //I2S_I2S_TX_FIFO_MOD
+#define I2STXFMM (0x3)      //I2S_I2S_TX_FIFO_MOD //modify 7->mod 3 24bit half discon
 #define I2STXFM  (13)       //I2S_I2S_TX_FIFO_MOD_S
 #define I2SDE    (1 << 12)  //I2S_I2S_DSCR_EN
 #define I2STXDNM (0x3F)     //I2S_I2S_TX_DATA_NUM
@@ -831,9 +829,9 @@ extern uint8_t esp8266_gpioToFn[16];
 #define I2SRXDN  (0)        //I2S_I2S_RX_DATA_NUM_S
 
 //I2S CONF CHAN
-#define I2SRXCMM (0x3)      //I2S_RX_CHAN_MOD
+#define I2SRXCMM (0x2)      //I2S_RX_CHAN_MOD //modify from 7 to 2
 #define I2SRXCM  (3)        //I2S_RX_CHAN_MOD_S
-#define I2STXCMM (0x7)      //I2S_TX_CHAN_MOD
+#define I2STXCMM (0x2)      //I2S_TX_CHAN_MOD //modify from 7 to 2
 #define I2STXCM  (0)        //I2S_TX_CHAN_MOD_S
 
 /**
